@@ -2,7 +2,16 @@
 
 This app was created using Python and Flask
 
-# How to Run:
+## Note
+
+- If the database is not found follow these steps
+- In `pipenv shell` enter `python`
+- This will enter you into the python shell
+- `import server imporot init_db`
+- `init_db`
+- This will initialize the database for use.
+
+## How to Run:
 
 - fork and git clone this repo.
 - cd into the folder

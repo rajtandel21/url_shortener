@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, g
+from flask import Flask, render_template, request, g, redirect
 from db import get_db
 import string
 import random
@@ -10,7 +10,6 @@ server = Flask(__name__)
 def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
-        # TODO: See if _database is removed from 'g' here
         db.close()
 
 #app is the flask app we defined
@@ -22,15 +21,14 @@ def init_db():
         db.commit()
 
 
-@server.route('/table')
-def stuff():
-    db = get_db()
-    cursor = db.cursor()
-
-    cursor.execute("SELECT * from urls")
-    trees = cursor.fetchall()
-
-    return "new.html"
+#@server.route('/table')
+#def stuff():
+#    db = get_db()
+#    cursor = db.cursor()
+#    cursor.execute("SELECT * from urls")
+#   trees = cursor.fetchall()
+#
+#    return "new.html"
 
 def random_short():
     letters = string.ascii_lowercase + string.ascii_uppercase
@@ -46,27 +44,45 @@ def home():
     if request.method == 'POST':
         longurl = request.form["nm"]
         print(longurl)
-        #cursor.execute("SELECT COUNT(*) FROM urls WHERE longurl=?", (lurl))
-        #url_exists = cursor.fetchone()[0]
-        #if count > 0:
-        #    message = "This url already exists"
-        #    return render_template("input.html", title="Home", message=message)
+        cursor.execute("SELECT COUNT(*) FROM urls WHERE longurl=(?);", (longurl,))
+        url_exists = cursor.fetchone()[0]
+        print(url_exists)
+        if url_exists > 0:
+            message = "This url already exists"
+            return render_template("input.html", title="Home", message=message)
         
         shorturl = random_short()
-        print(shorturl)
+        #print(shorturl)
         cursor.execute("INSERT INTO urls (longurl, shorturl) VALUES (?, ?);", (longurl, shorturl))
         db.commit()
 
-        message = f"short url {surl} was created for {lurl}!"
-        return render_template('input.html', title="Home", message=message)
+        #message = f"short url {shorturl} was created for {longurl}!"
+        #return render_template('input.html', title="Home", message=message)
 
+    cursor.execute('SELECT * FROM urls')
+    all_urls = cursor.fetchall()
+    #print(all_urls)
     message= "create a url"
-    return render_template("input.html", title="Home", message=message)
+    return render_template("input.html", title="Home", message=message, all_urls=all_urls)
 
 
 @server.route('/all')
 def allurls():
     return "all urls will be here"
+
+#localshost:5000/askdh
+#google.co.uk
+
+@server.route('/<string:url>', methods=['GET'])
+def reroute(url):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM urls WHERE shorturl=(?);", (url,))
+    og_url = cursor.fetchall()[0]
+    if og_url == 0:
+        return "This short url does not exist"
+    print(og_url[1])
+    return redirect(og_url[1], code=302)
 
 @server.errorhandler(404)
 def handle_404(err):
