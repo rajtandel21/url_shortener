@@ -21,21 +21,19 @@ def init_db():
         db.commit()
 
 
-#@server.route('/table')
-#def stuff():
-#    db = get_db()
-#    cursor = db.cursor()
-#    cursor.execute("SELECT * from urls")
-#   trees = cursor.fetchall()
-#
-#    return "new.html"
 
 def random_short():
+    db = get_db()
+    cursor = db.cursor()
     letters = string.ascii_lowercase + string.ascii_uppercase
-    rand_letter = random.choices(letters, k=5)
-    rand_letter = "".join(rand_letter)
+    while True:
+        rand_letter = random.choices(letters, k=5)
+        rand_letter = "".join(rand_letter)
+        cursor.execute("SELECT COUNT(*) FROM urls WHERE shorturl=(?);", (rand_letter,))
+        url_exists = cursor.fetchone()[0]
+        if not url_exists > 0:
+            return rand_letter
     #check db for if this rand letters already exist
-    return rand_letter
 
 @server.route('/', methods=['GET', 'POST'])
 def home():
