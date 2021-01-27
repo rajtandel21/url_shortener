@@ -41,7 +41,12 @@ def home():
     cursor = db.cursor()
     if request.method == 'POST':
         longurl = request.form["nm"]
+        test_list = ['.com', '.co.uk', '.io']
         print(longurl)
+        #res = [ele for ele in test_list if(ele in longurl)]
+        #print(res)
+        if not any(word in longurl for word in test_list):
+            return render_template("input.html", title="Home", message="url end is not valid")
         cursor.execute("SELECT COUNT(*) FROM urls WHERE longurl=(?);", (longurl,))
         url_exists = cursor.fetchone()[0]
         print(url_exists)
