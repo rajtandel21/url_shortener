@@ -1,0 +1,21 @@
+{% extends "index.html" %}
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+<div class = .form>
+<form action="#", method="post">
+    <label for ="url"> Enter a URL: </label>
+
+    <input type="url" name="nm" id="url" placeholder = "https://helloworld.com" pattern= "https://.*" required>
+    <br>
+    <input type="submit" value="submit" id='button'>
+</form>
+<div>
+<h3>{{message}}</h3>
+{% for url in all_urls|reverse %}
+    <div>
+        <p>Long url: {{url[1]}}</p>
+        <p>Short url: <a href="http://127.0.0.1:5000/{{url[2]}}">http://127.0.0.1:5000/{{url[2]}}</a></p>
+    </div>
+{% endfor %}
+{% endblock content %}
